@@ -1,16 +1,16 @@
 package kubernetes
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/api/admission/v1beta1"
 	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
+	"k8s.io/kubernetes/pkg/apis/core/v1"
+	"net/http"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -110,6 +110,8 @@ func (wk *WebHook) admit(ar v1beta1.AdmissionReview) *v1beta1.AdmissionResponse 
 	if err != nil {
 		return ToAdmissionResponse(err)
 	}
+
+	log.Debugf("AdmissionResponse: patch=%v\n", pod.Spec.Containers[0])
 
 	wk.VaultConfig, err = injectData(&data, wk.SidecarConfig)
 	if err != nil {
